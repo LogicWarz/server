@@ -233,9 +233,9 @@ describe("User Routing Tests", function() {
                 .send(emptyEmail)
                 .end(function(err, res) {
                     expect(err).to.be.null;
-                    expect(res).to.have.status(404);
+                    expect(res).to.have.status(401);
                     expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.equal("User not found");
+                    expect(res.body.message).to.equal("Email address / password is incorrect");
                     done();
                 });
             });
@@ -247,9 +247,9 @@ describe("User Routing Tests", function() {
                 .send(invalidEmail)
                 .end(function(err, res) {
                     expect(err).to.be.null;
-                    expect(res).to.have.status(404);
+                    expect(res).to.have.status(401);
                     expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.equal("User not found");
+                    expect(res.body.message).to.equal("Email address / password is incorrect");
                     done();
                 });
             });
@@ -261,9 +261,9 @@ describe("User Routing Tests", function() {
                 .send(wrongPassword)
                 .end(function(err, res) {
                     expect(err).to.be.null;
-                    expect(res).to.have.status(400);
+                    expect(res).to.have.status(401);
                     expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.equal("Password not matched");
+                    expect(res.body.message).to.equal("Email address / password is incorrect");
                     done();
                 });
             });
