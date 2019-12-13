@@ -23,17 +23,12 @@ class UserController {
             email: req.body.email
         })
         .then((user) => {
-            if (user) {
-                if (bcrypt.compare(req.body.password, user.password)) {
+            if (user && bcrypt.compare(req.body.password, user.password)) {
                     const user_data = { _id: user._id, name: user.name, email: user.email, points: user.points };
                     const token = jwt.sign({ _id: user._id, name: user.name, email: user.email, points: user.points });
                     res.status(200).json({ user_data, token });
-                } else {
-                    let err = { status: 400, message: `Password not matched` };
-                    next(err);
-                }
             } else {
-                let err = { status: 404, message: `User not found` };
+                let err = { status: 401, message: `Email address / password is incorrect` };
                 next(err);
             }
         })

@@ -4,10 +4,11 @@ const adminAuthorization = require("../middlewares/adminAuthorization");
 const challengeController = require('../controllers/challenge')
 
 router.use(authentication);
-router.use(adminAuthorization);
-router.post('/', challengeController.create)
 router.get('/', challengeController.getAll)
 router.get('/:id', challengeController.getId)
+
+router.use(adminAuthorization);
+router.post('/', challengeController.create)
 router.patch('/:id', challengeController.updateId)
 router.delete('/:id', challengeController.deleteId)
 
