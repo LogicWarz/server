@@ -9,7 +9,6 @@ const routes = require("./routes");
 const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(morgan("tiny"));
@@ -18,7 +17,5 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/", routes);
 app.use(errorHandler);
-
-app.listen(PORT, () => console.log(`Server is listening from port : ${PORT}`));
 
 module.exports = app;
