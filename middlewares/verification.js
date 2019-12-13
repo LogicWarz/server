@@ -19,4 +19,4 @@ function verification (req, res, next) {
     });
 }
 
-module.exports = verification;
+module.exports = { verification };
