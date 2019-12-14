@@ -11,6 +11,7 @@ let newUser = {}
 let secondUser = {}
 let token = ''
 let tokenND = ''
+let id = ''
 
 let userSignIn = {
     email: 'testRoom@room.com',
@@ -23,7 +24,7 @@ let secondUserSignIn = {
 }
 
 describe('CRUD rooms', () => {
-    before(function () {
+    before(function (done) {
         User.create({
             email: 'testRoom@room.com',
             password: 'Ss123456',
@@ -40,6 +41,7 @@ describe('CRUD rooms', () => {
             .then(user => {
                 secondUser = user
                 console.log('User created')
+                done();
             })
             .catch(err => {
                 console.log(err)
@@ -53,7 +55,7 @@ describe('CRUD rooms', () => {
                     .post("/users/signin")
                     .send(userSignIn)
                     .end(function (err, res) {
-                        console.log(res.body)
+                        // console.log(res.body)
                         expect(err).to.be.null
                         expect(res).to.have.status(200);
                         token = res.body.token
