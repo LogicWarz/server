@@ -30,42 +30,42 @@ let userSignIn = {
 
 let userToken = "";
 
-describe("User Routing Tests", function() {
+describe("User Routing Tests", function () {
     // Hooks before doing testing
-    before(function(done) {
+    before(function (done) {
         User.create({
             email: "edirates@gmail.com",
             password: "Edison1234",
             name: "Edison"
         })
-        .then((user) => {
-            return User.create({
-                email: "jon@snow.com",
-                password: "Jonsnow1234",
-                name: "Jon Snow"
-            });
-        })
-        .then((user) => {
-            console.log(`Initial users created.`);
-            done();
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    });
-    describe("POST /users/signup", function() {
-        describe("Success Response", function() {
-            it("Should return an object value contains token with HTTP status code 201", function(done) {
-                chai.request(app)
-                .post("/users/signup")
-                .send(userSignUp)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(201);
-                    expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
-                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
-                    done();
+            .then((user) => {
+                return User.create({
+                    email: "jon@snow.com",
+                    password: "Jonsnow1234",
+                    name: "Jon Snow"
                 });
+            })
+            .then((user) => {
+                console.log(`Initial users created.`);
+                done();
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    });
+    describe("POST /users/signup", function () {
+        describe("Success Response", function () {
+            it("Should return an object value contains token with HTTP status code 201", function (done) {
+                chai.request(app)
+                    .post("/users/signup")
+                    .send(userSignUp)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(201);
+                        expect(res.body).to.be.an("object").to.have.any.keys("user_data", "token");
+                        expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id", "email", "password", "name", "points");
+                        done();
+                    });
             });
         });
         describe("Error Responses", function () {
@@ -199,16 +199,16 @@ describe("User Routing Tests", function() {
         describe("Success Response", function () {
             it("Should return an object value contains token with HTTP status code 200", function (done) {
                 chai.request(app)
-                .post("/users/signin")
-                .send(userSignIn)
-                .end( function (err, res) {
-                    userToken = res.body.token;
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
-                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
-                    done();
-                });
+                    .post("/users/signin")
+                    .send(userSignIn)
+                    .end(function (err, res) {
+                        userToken = res.body.token;
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("user_data", "token");
+                        expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id", "email", "password", "name", "points");
+                        done();
+                    });
             });
         });
         describe("Error Responses", function () {
@@ -272,45 +272,45 @@ describe("User Routing Tests", function() {
     //         });
     //     });
     // });
-    describe("GET /users", function() {
-        describe("Success Response", function() {
-            it("Should return an object value containing user data with HTTP status code 200", function(done) {
+    describe("GET /users", function () {
+        describe("Success Response", function () {
+            it("Should return an object value containing user data with HTTP status code 200", function (done) {
                 chai.request(app)
-                .get("/users")
-                .set("token", userToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
-                    done();
-                });
+                    .get("/users")
+                    .set("token", userToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("_id", "email", "password", "name", "points");
+                        done();
+                    });
             });
         });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
+        describe("Error Response", function () {
+            it("Should return an error with HTTP status code 403 because user not logged in", function (done) {
                 chai.request(app)
-                .get("/users")
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
-                    done();
-                });
+                    .get("/users")
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(403);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("You must log in first");
+                        done();
+                    });
             });
         });
     });
     // Delete record after testing
-    after(function(done) {
+    after(function (done) {
         if (process.env.NODE_ENV === "testing") {
             User.deleteMany()
-            .then((deleted) => {
-                console.log(`All users are deleted.`);
-                done();
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+                .then((deleted) => {
+                    console.log(`All users are deleted.`);
+                    done();
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         }
     });
 });
