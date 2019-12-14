@@ -15,6 +15,7 @@ function errorHandler(err, req, res, next) {
             }
             break;
         case "CastError":
+            console.log('masuk')
             status = 400;
             message = `Invalid Object ID`;
             break;
