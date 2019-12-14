@@ -9,11 +9,11 @@ const roomSchema = new Schema({
         type: String,
         required: [true, 'Please select challenge level']
     },
-    players: {
-        type: [Schema.Types.ObjectId],
+    players: [{
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    },
+    }],
     status: {
         type: String,
         enum: ['open', 'closed'],

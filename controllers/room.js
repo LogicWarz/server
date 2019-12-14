@@ -13,7 +13,6 @@ module.exports = {
             .catch(next)
     },
     getAll(req, res, next) {
-        // console.log('masukkkk')
         Room.find().sort([['createdAt', 'descending']])
             .then(rooms => {
                 res.status(200).json({ rooms })
@@ -21,8 +20,7 @@ module.exports = {
             .catch(next)
     },
     getOne(req, res, next) {
-        Room.findById(req.params.id)
-            .populate('players')
+        Room.findById(req.params.id).populate('players')
             .then(room => {
                 res.status(200).json({ room })
             })
@@ -34,7 +32,7 @@ module.exports = {
                 if (!room) {
                     throw { status: 404, message: 'Room not found' }
                 } else {
-                    return Room.findByIdAndUpdate(req.params.id, { $push: { players: req.user._id } }, { new: true })
+                    return Room.findByIdAndUpdate(req.params.id, { $push: { players: req.user._id } }, { new: true }).populate('players')
                 }
             })
             .then(room => {
