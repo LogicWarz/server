@@ -42,7 +42,7 @@ class UserController {
             if (user) {
                 res.status(200).json(user);
             } else {
-                let err = { status: 400, message: `User not found` };
+                let err = { status: 403, message: `You must log in first` };
                 next(err);
             }
         })

@@ -1,7 +1,5 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const User = require("../models/user");
-
 const sinon = require("sinon");
 const verification = require("../middlewares/verification");
 sinon.replace(verification, "verification", (req, res, next) => {
@@ -11,9 +9,8 @@ sinon.replace(verification, "verification", (req, res, next) => {
     };
     next();
 });
-
 const app = require("../app");
-    
+const User = require("../models/user");
 
 // Use Chai HTTP
 chai.use(chaiHttp);
@@ -31,44 +28,31 @@ let userSignIn = {
     password: userSignUp.password
 };
 
-// Hooks before doing testing
-before(function(done) {
-    User.create({
-        email: "edirates@gmail.com",
-        password: "Edison1234",
-        name: "Edison"
-    })
-    .then((user) => {
-        return User.create({
-            email: "jon@snow.com",
-            password: "Jonsnow1234",
-            name: "Jon Snow"
-        });
-    })
-    .then((user) => {
-        console.log(`Initial users created.`);
-        done();
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-});
+let userToken = "";
 
-// Delete record after testing
-after(function(done) {
-    if (process.env.NODE_ENV === "testing") {
-        User.deleteMany()
-        .then((deleted) => {
-            console.log(`All users are deleted.`);
+describe("User Routing Tests", function() {
+    // Hooks before doing testing
+    before(function(done) {
+        User.create({
+            email: "edirates@gmail.com",
+            password: "Edison1234",
+            name: "Edison"
+        })
+        .then((user) => {
+            return User.create({
+                email: "jon@snow.com",
+                password: "Jonsnow1234",
+                name: "Jon Snow"
+            });
+        })
+        .then((user) => {
+            console.log(`Initial users created.`);
             done();
         })
         .catch((err) => {
             console.log(err);
         });
-    }
-});
-
-describe("User Routing Tests", function() {
+    });
     describe("POST /users/signup", function() {
         describe("Success Response", function() {
             it("Should return an object value contains token with HTTP status code 201", function(done) {
@@ -79,6 +63,7 @@ describe("User Routing Tests", function() {
                     expect(err).to.be.null;
                     expect(res).to.have.status(201);
                     expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
+                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
                     done();
                 });
             });
@@ -217,9 +202,11 @@ describe("User Routing Tests", function() {
                 .post("/users/signin")
                 .send(userSignIn)
                 .end( function (err, res) {
+                    userToken = res.body.token;
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
+                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
                     done();
                 });
             });
@@ -279,9 +266,51 @@ describe("User Routing Tests", function() {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
+                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
                     done();
                 });
             });
         });
+    });
+    describe("GET /users", function() {
+        describe("Success Response", function() {
+            it("Should return an object value containing user data with HTTP status code 200", function(done) {
+                chai.request(app)
+                .get("/users")
+                .set("token", userToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
+                    done();
+                });
+            });
+        });
+        describe("Error Response", function() {
+            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
+                chai.request(app)
+                .get("/users")
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You must log in first");
+                    done();
+                });
+            });
+        });
+    });
+    // Delete record after testing
+    after(function(done) {
+        if (process.env.NODE_ENV === "testing") {
+            User.deleteMany()
+            .then((deleted) => {
+                console.log(`All users are deleted.`);
+                done();
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+        }
     });
 });
