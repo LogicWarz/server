@@ -13,7 +13,7 @@ module.exports = {
             .catch(next)
     },
     getAll(req, res, next) {
-        Room.find().sort([['createdAt', 'descending']])
+        Room.find().sort([['createdAt', 'descending']]).populate({ path: 'players', options: { limit: 1 } })
             .then(rooms => {
                 res.status(200).json({ rooms })
             })
@@ -27,12 +27,19 @@ module.exports = {
             .catch(next)
     },
     joinRoom(req, res, next) {
+        let notUnique = false
         Room.findById(req.params.id)
             .then(room => {
                 if (!room) {
                     throw { status: 404, message: 'Room not found' }
                 } else {
-                    return Room.findByIdAndUpdate(req.params.id, { $push: { players: req.user._id } }, { new: true }).populate('players')
+                    room.players.forEach(player => {
+                        if (player == req.user._id) {
+                            notUnique = true
+                        }
+                    })
+                    if (notUnique) throw { status: 400, message: 'You already joined the room' }
+                    else return Room.findByIdAndUpdate(req.params.id, { $push: { players: req.user._id } }, { new: true }).populate('players')
                 }
             })
             .then(room => {
@@ -85,6 +92,19 @@ module.exports = {
             })
             .then(() => {
                 res.status(200).json({ message: 'Delete success' })
+            })
+            .catch(next)
+    },
+    roomFull(req, res, next) {
+        Room.findById(req.params.id)
+            .then(room => {
+                if (!room) throw { status: 404, message: 'Room not found' }
+                else {
+                    return Room.findByIdAndUpdate(req.params.id, { status: 'closed' }, { new: true })
+                }
+            })
+            .then(room => {
+                res.status(200).json({ room })
             })
             .catch(next)
     }

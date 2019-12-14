@@ -21,11 +21,19 @@ io.on('connection', (socket) => {
     })
 
     socket.on('play-game', (data) => {
-        socket.broadcast.emit('playGame', { id: data.id, msg: data.msg })
+        io.emit('playGame', { id: data.id, msg: data.msg })
     })
 
     socket.on('leave-room', (data) => {
         socket.broadcast.emit('leaveRoom', { id: data.id, msg: data.msg })
+    })
+
+    socket.on('in-game', () => {
+        socket.broadcast.emit('inGame', 'In game')
+    })
+
+    socket.on('success-challenge', () => {
+        io.emit('successChallenge', 'Hello')
     })
 })
 
