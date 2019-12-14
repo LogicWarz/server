@@ -68,136 +68,136 @@ describe("User Routing Tests", function() {
                 });
             });
         });
-        describe("Error Responses", function() {
-            it("Should return an error with HTTP status code 400 because of empty email value", function(done) {
+        describe("Error Responses", function () {
+            it("Should return an error with HTTP status code 400 because of empty email value", function (done) {
                 const emptyEmail = { ...userSignUp };
                 emptyEmail.email = "";
                 chai.request(app)
-                .post("/users/signup")
-                .send(emptyEmail)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Email address is required");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(emptyEmail)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Email address is required");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of invalid email format", function(done) {
+            it("Should return an error with HTTP status code 400 because of invalid email format", function (done) {
                 const invalidEmail = { ...userSignUp };
                 invalidEmail.email = "tester.com";
                 chai.request(app)
-                .post("/users/signup")
-                .send(invalidEmail)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Invalid email address format");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(invalidEmail)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Invalid email address format");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of duplicate email value", function(done) {
+            it("Should return an error with HTTP status code 400 because of duplicate email value", function (done) {
                 chai.request(app)
-                .post("/users/signup")
-                .send(userSignUp)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Email address must be unique");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(userSignUp)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Email address must be unique");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of empty password value", function(done) {
+            it("Should return an error with HTTP status code 400 because of empty password value", function (done) {
                 const emptyPassword = { ...userSignUp };
                 emptyPassword.password = "";
                 chai.request(app)
-                .post("/users/signup")
-                .send(emptyPassword)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Password is required");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(emptyPassword)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Password is required");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of password not contained one uppercase letter", function(done) {
+            it("Should return an error with HTTP status code 400 because of password not contained one uppercase letter", function (done) {
                 const upperPassword = { ...userSignUp };
                 upperPassword.password = "tester1234";
                 chai.request(app)
-                .post("/users/signup")
-                .send(upperPassword)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(upperPassword)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of password not contained one lowercase letter", function(done) {
+            it("Should return an error with HTTP status code 400 because of password not contained one lowercase letter", function (done) {
                 const lowerPassword = { ...userSignUp };
                 lowerPassword.password = "TESTER1234";
                 chai.request(app)
-                .post("/users/signup")
-                .send(lowerPassword)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(lowerPassword)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of password not contained one number", function(done) {
+            it("Should return an error with HTTP status code 400 because of password not contained one number", function (done) {
                 const numberPassword = { ...userSignUp };
                 numberPassword.password = "TESTERtester";
                 chai.request(app)
-                .post("/users/signup")
-                .send(numberPassword)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(numberPassword)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of password length below 8", function(done) {
+            it("Should return an error with HTTP status code 400 because of password length below 8", function (done) {
                 const lessPassword = { ...userSignUp };
                 lessPassword.password = lessPassword.password.slice(7);
                 chai.request(app)
-                .post("/users/signup")
-                .send(lessPassword)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(lessPassword)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Minimum eight characters, at least one uppercase letter, one lowercase letter and one number");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 400 because of empty name value", function(done) {
+            it("Should return an error with HTTP status code 400 because of empty name value", function (done) {
                 const emptyName = { ...userSignUp };
                 emptyName.name = "";
                 chai.request(app)
-                .post("/users/signup")
-                .send(emptyName)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Name is required");
-                    done();
-                });
+                    .post("/users/signup")
+                    .send(emptyName)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(400);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.an("array").that.includes("Name is required");
+                        done();
+                    });
             });
         });
     });
-    describe("POST /users/signin", function() {
-        describe("Success Response", function() {
-            it("Should return an object value contains token with HTTP status code 200", function(done) {
+    describe("POST /users/signin", function () {
+        describe("Success Response", function () {
+            it("Should return an object value contains token with HTTP status code 200", function (done) {
                 chai.request(app)
                 .post("/users/signin")
                 .send(userSignIn)
@@ -211,48 +211,48 @@ describe("User Routing Tests", function() {
                 });
             });
         });
-        describe("Error Responses", function() {
-            it("Should return an error with HTTP status code 404 because of empty email value", function(done) {
+        describe("Error Responses", function () {
+            it("Should return an error with HTTP status code 404 because of empty email value", function (done) {
                 const emptyEmail = { ...userSignIn };
                 emptyEmail.email = "";
                 chai.request(app)
-                .post("/users/signin")
-                .send(emptyEmail)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(401);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.equal("Email address / password is incorrect");
-                    done();
-                });
+                    .post("/users/signin")
+                    .send(emptyEmail)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(401);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.equal("Email address / password is incorrect");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 404 because email is not found", function(done) {
+            it("Should return an error with HTTP status code 404 because email is not found", function (done) {
                 const invalidEmail = { ...userSignIn };
                 invalidEmail.email = "tester@mail.com";
                 chai.request(app)
-                .post("/users/signin")
-                .send(invalidEmail)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(401);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.equal("Email address / password is incorrect");
-                    done();
-                });
+                    .post("/users/signin")
+                    .send(invalidEmail)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(401);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.equal("Email address / password is incorrect");
+                        done();
+                    });
             });
-            it("Should return an error with HTTP status code 404 because password is not match", function(done) {
+            it("Should return an error with HTTP status code 404 because password is not match", function (done) {
                 const wrongPassword = { ...userSignIn };
                 wrongPassword.password = "changepass";
                 chai.request(app)
-                .post("/users/signin")
-                .send(wrongPassword)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(401);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.equal("Email address / password is incorrect");
-                    done();
-                });
+                    .post("/users/signin")
+                    .send(wrongPassword)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(401);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.equal("Email address / password is incorrect");
+                        done();
+                    });
             });
         });
     });
