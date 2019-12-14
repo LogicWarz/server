@@ -1,4 +1,4 @@
-const { createRoom, getAll, getOne, joinRoom, changeStatus, leaveRoom, removeRoom } = require('../controllers/room')
+const { createRoom, getAll, getOne, joinRoom, changeStatus, leaveRoom, removeRoom, roomFull } = require('../controllers/room')
 const router = require('express').Router()
 const authenticate = require('../middlewares/authentication')
 
@@ -15,6 +15,8 @@ router.patch('/join/:id', joinRoom)
 router.patch('/play/:id', changeStatus)
 
 router.patch('/leave/:id', leaveRoom)
+
+router.patch('/full/:id', roomFull)
 
 router.delete('/:id', removeRoom)
 
