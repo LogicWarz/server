@@ -12,60 +12,9 @@ let secondUser = {}
 let token = ''
 let tokenND = ''
 
-before(function () {
-    User.create({
-        email: 'testRoom@room.com',
-        password: 'Ss123456',
-        name: 'testRoom'
-    })
-        .then(user => {
-            newUser = user
-            return User.create({
-                email: 'roomtest@room.com',
-                password: 'Ss123456',
-                name: 'roomtest'
-            })
-        })
-        .then(user => {
-            secondUser = user
-            console.log('User created')
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    // Room.findOneAndUpdate({ title: 'abc' }, { title: 'abc', level: 'beginner', $push: { players: 'testing' } }, { new: true, upsert: true })
-    //     .then(room => {
-    //         id = room._id
-    //         console.log('dummy room created')
-    //     })
-    //     .catch(err => {
-    //         console.log(err)
-    //     })
-})
-
-after(function (done) {
-    Room.deleteMany({})
-        .then(() => {
-            return User.deleteMany({})
-        })
-        .then(() => {
-            done()
-            console.log('delete success')
-        })
-        .catch(err => {
-            console.log(err)
-        })
-})
-
-let userSignUp = {
-    email: 'testRoom@room.com',
-    password: 'Ss123456',
-    name: 'testRoom'
-};
-
 let userSignIn = {
-    email: userSignUp.email,
-    password: userSignUp.password
+    email: 'testRoom@room.com',
+    password: 'Ss123456'
 };
 
 let secondUserSignIn = {
@@ -74,6 +23,28 @@ let secondUserSignIn = {
 }
 
 describe('CRUD rooms', () => {
+    before(function () {
+        User.create({
+            email: 'testRoom@room.com',
+            password: 'Ss123456',
+            name: 'testRoom'
+        })
+            .then(user => {
+                newUser = user
+                return User.create({
+                    email: 'roomtest@room.com',
+                    password: 'Ss123456',
+                    name: 'roomtest'
+                })
+            })
+            .then(user => {
+                secondUser = user
+                console.log('User created')
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    })
     describe('Login user', function () {
         describe('success', function () {
             it('Should return status 200 after successfull login', function (done) {
@@ -82,6 +53,7 @@ describe('CRUD rooms', () => {
                     .post("/users/signin")
                     .send(userSignIn)
                     .end(function (err, res) {
+                        console.log(res.body)
                         expect(err).to.be.null
                         expect(res).to.have.status(200);
                         token = res.body.token
@@ -468,5 +440,18 @@ describe('CRUD rooms', () => {
                     })
             })
         })
+    })
+    after(function (done) {
+        Room.deleteMany({})
+            .then(() => {
+                return User.deleteMany({})
+            })
+            .then(() => {
+                done()
+                console.log('delete success')
+            })
+            .catch(err => {
+                console.log(err)
+            })
     })
 })

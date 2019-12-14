@@ -11,6 +11,7 @@ const roomSchema = new Schema({
     },
     players: {
         type: [Schema.Types.ObjectId],
+        ref: 'User',
         required: true
     },
     status: {
