@@ -17,6 +17,40 @@ class AnswerController {
         });
     }
 
+    static findUser (req, res, next) {
+        Answer.find({
+            UserId: req.user._id
+        })
+        .populate("QuestionId")
+        .populate("UserId", "-password")
+        .sort({
+            createdAt: "DESC"
+        })
+        .then((answers) => {
+            res.status(200).json(answers);
+        })
+        .catch((err) => {
+            next(err);
+        });
+    }
+
+    static findQuestion (req, res, next) {
+        Answer.find({
+            QuestionId: req.params.id
+        })
+        .populate("QuestionId")
+        .populate("UserId", "-password")
+        .sort({
+            createdAt: "DESC"
+        })
+        .then((answers) => {
+            res.status(200).json(answers);
+        })
+        .catch((err) => {
+            next(err);
+        });
+    }
+
     static findOne (req, res, next) {
         Answer.findById(req.params.id)
         .populate("QuestionId")
@@ -37,10 +71,19 @@ class AnswerController {
 
     static create (req, res, next) {
         let created = "";
-        Answer.create({
-            QuestionId: req.body.QuestionId,
-            description: req.body.description,
-            UserId: req.user._id
+        Question.findById(req.body.QuestionId)
+        .then((question) => {
+            if (question) {
+                return Answer.create({
+                    QuestionId: req.body.QuestionId,
+                    description: req.body.description,
+                    UserId: req.user._id
+                });
+            }
+            else{
+                let err = { status: 404, message: `Question not found` }
+                next(err);
+            }
         })
         .then((answer) => {
             return answer.populate("UserId", "-password").execPopulate();
@@ -85,7 +128,13 @@ class AnswerController {
     static delete (req, res, next) {
         Answer.findByIdAndDelete(req.params.id)
         .then((answer) => {
-            return Question.findByIdAndUpdate(answer.QuestionId, { $pull: { answers: answer._id } });
+            if (answer.deletedCount > 0) {
+                return Question.findByIdAndUpdate(answer.QuestionId, { $pull: { answers: answer._id } });
+            }
+            else {
+                let err = { status: 404, message: `Answer not found` };
+                next(err);
+            }
         })
         .then((deleted) => {
             res.status(200).json({ message: "Answer deleted successfully" });
@@ -98,23 +147,29 @@ class AnswerController {
     static upvote(req, res, next) {
         Answer.findById(req.params.id)
         .then((answer) => {
-            if (answer.UserId != req.user._id) {
-                if (answer.upvotes.includes(req.user._id) === false) {
-                    const downvote = answer.downvotes.indexOf(req.user._id);
-                    if (downvote >= 0) {
-                        answer.downvotes.splice(downvote, 1);
+            if (answer) {
+                if (answer.UserId != req.user._id) {
+                    if (answer.upvotes.includes(req.user._id) === false) {
+                        const downvote = answer.downvotes.indexOf(req.user._id);
+                        if (downvote >= 0) {
+                            answer.downvotes.splice(downvote, 1);
+                        }
+                        answer.upvotes.push(req.user._id);
+                        return answer.save();
+                    } else {
+                        const index = answer.upvotes.indexOf(req.user._id);
+                        answer.upvotes.splice(index, 1);
+                        return answer.save();
                     }
-                    answer.upvotes.push(req.user._id);
-                    return answer.save();
-                } else {
-                    const index = answer.upvotes.indexOf(req.user._id);
-                    answer.upvotes.splice(index, 1);
-                    return answer.save();
+                }
+                else {
+                    let err = { status: 403, message: `You cannot vote your own answer` };
+                    throw err;
                 }
             }
             else {
-                let err = { status: 400, message: `You cannot vote your own answer` };
-                throw err;
+                let err = { status: 404, message: `Answer not found` };
+                next(err);
             }
         })
         .then((voted) => {
@@ -128,23 +183,29 @@ class AnswerController {
     static downvote(req, res, next) {
         Answer.findById(req.params.id)
         .then((answer) => {
-            if (answer.UserId != req.user._id) {
-                if (answer.downvotes.includes(req.user._id) === false) {
-                    const upvote = answer.upvotes.indexOf(req.user._id);
-                    if (upvote >= 0) {
-                        answer.upvotes.splice(upvote, 1);
+            if (answer) {
+                if (answer.UserId != req.user._id) {
+                    if (answer.downvotes.includes(req.user._id) === false) {
+                        const upvote = answer.upvotes.indexOf(req.user._id);
+                        if (upvote >= 0) {
+                            answer.upvotes.splice(upvote, 1);
+                        }
+                        answer.downvotes.push(req.user._id);
+                        return answer.save();
+                    } else {
+                        const index = answer.downvotes.indexOf(req.user._id);
+                        answer.downvotes.splice(index, 1);
+                        return answer.save();
                     }
-                    answer.downvotes.push(req.user._id);
-                    return answer.save();
-                } else {
-                    const index = answer.downvotes.indexOf(req.user._id);
-                    answer.downvotes.splice(index, 1);
-                    return answer.save();
+                }
+                else {
+                    let err = { status: 403, message: `You cannot vote your own answer` };
+                    throw err;
                 }
             }
             else {
-                let err = { status: 400, message: `You cannot vote your own answer` };
-                throw err;
+                let err = { status: 404, message: `Answer not found` };
+                next(err);
             }
         })
         .then((voted) => {

@@ -256,22 +256,22 @@ describe("User Routing Tests", function() {
             });
         });
     });
-    describe("POST /users/gsignin", function() {
-        describe("Success Response", function() {
-            it("Should return an object value contains token with HTTP status code 200", function(done) {
-                chai.request(app)
-                .post("/users/gsignin")
-                .send(userSignIn)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
-                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
-                    done();
-                });
-            });
-        });
-    });
+    // describe("POST /users/gsignin", function() {
+    //     describe("Success Response", function() {
+    //         it("Should return an object value contains token with HTTP status code 200", function(done) {
+    //             chai.request(app)
+    //             .post("/users/gsignin")
+    //             .send(userSignIn)
+    //             .end( function (err, res) {
+    //                 expect(err).to.be.null;
+    //                 expect(res).to.have.status(200);
+    //                 expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
+    //                 expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
+    //                 done();
+    //             });
+    //         });
+    //     });
+    // });
     describe("GET /users", function() {
         describe("Success Response", function() {
             it("Should return an object value containing user data with HTTP status code 200", function(done) {

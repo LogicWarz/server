@@ -27,19 +27,16 @@ let firstUserToken = "";
 let secondUserId = "";
 let secondUserToken = "";
 
-// Declare Variables to Store Questions ID
+// Declare Variables to Store answers ID
 let firstQuestionId = "";
 let secondQuestionId = "";
-let wrongQuestionId = "5dc93e20274f784242aedf80";
 
-// Request Request Body New Question
-let newQuestionId = "";
-let newQuestion = {
-    title: "New Question",
-    description: "Is this question working?",
-    tags: "hope,work,fine",
-};
+// Request Request Body New Answer
 let firstAnswerId = "";
+let secondAnswerId = "";
+let wrongQuestionId = "5dc93e20274f784242aedf80";
+let wrongAnswerId = "5dc93e20274f784242aedf80";
+let newAnswerId = "";
 
 describe("User Sign In Tests", function() {
     // Hooks before doing testing
@@ -70,15 +67,23 @@ describe("User Sign In Tests", function() {
         })
         .then((question) => {
             secondQuestionId = question._id;
-            console.log(`Initial questions created.`);
+            console.log(`Initial answers created.`);
             return Answer.create({
                 QuestionId: firstQuestionId,
-                description: "I'm fine thanks",
-                UserId: secondUserId
-            })
+                description: "Is there anyone there?",
+                UserId: firstUserId
+            });
         })
         .then((answer) => {
             firstAnswerId = answer._id;
+            return Answer.create({
+                QuestionId: secondQuestionId,
+                description: "Please answer me.",
+                UserId: secondUserId
+            });
+        })
+        .then((answer) => {
+            secondAnswerId = answer._id;
             console.log(`Initial answers created.`);
             done();
         })
@@ -125,148 +130,59 @@ describe("User Sign In Tests", function() {
     });
 });
 
-describe("Question Routing Tests", function() {
+describe("Answer Routing Tests", function() {
     this.timeout(30000);
-    describe("GET /questions/", function() {
+    describe("GET /answers/", function() {
         describe("Success Response", function() {
-            it("Should return an array of object value containing all questions with HTTP status code 200", function(done) {
+            it("Should return an array of object value containing all answers with HTTP status code 200", function(done) {
                 chai.request(app)
-                .get("/questions")
+                .get("/answers")
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an('array');
-                    expect(res.body[0]).to.be.an("object").to.have.any.keys("_id","title","description","tags","answers","upvotes","downvotes","views","UserId");
+                    expect(res.body[0]).to.be.an("object").to.have.any.keys("_id","QuestionId","description","upvotes","downvotes","UserId");
                     done();
                 });
             });
         });
     });
-    describe("GET /questions/user", function() {
+    describe("GET /answers/question/:id", function() {
         describe("Success Response", function() {
-            it("Should return an array of object value containing all user questions with HTTP status code 200", function(done) {
+            it("Should return an array of object value containing all answers for one question with HTTP status code 200", function(done) {
                 chai.request(app)
-                .get("/questions/user")
+                .get("/answers/question/"+firstQuestionId)
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an('array');
-                    expect(res.body[0]).to.be.an("object").to.have.any.keys("_id","title","description","tags","answers","upvotes","downvotes","views","UserId");
-                    done();
-                });
-            });
-        });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
-                chai.request(app)
-                .get("/questions/user")
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
+                    expect(res.body[0]).to.be.an("object").to.have.any.keys("_id","QuestionId","description","upvotes","downvotes","UserId");
                     done();
                 });
             });
         });
     });
-    describe("GET /questions/:id", function() {
+    describe("GET /answers/user", function() {
         describe("Success Response", function() {
-            it("Should return an object value containing one question with HTTP status code 200", function(done) {
+            it("Should return an array of object value containing all user answers with HTTP status code 200", function(done) {
                 chai.request(app)
-                .get("/questions/"+firstQuestionId)
+                .get("/answers/user")
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
-                    expect(res.body).to.be.an('object').to.have.any.keys("_id","title","description","tags","answers","upvotes","downvotes","views","UserId");
+                    expect(res.body).to.be.an('array');
+                    expect(res.body[0]).to.be.an("object").to.have.any.keys("_id","QuestionId","description","upvotes","downvotes","UserId");
                     done();
                 });
             });
         });
         describe("Error Response", function() {
-            it("Should return an error with HTTP status code 404 because question is not found", function(done) {
-                chai.request(app)
-                .get("/questions/"+wrongQuestionId)
-                .set("token", firstUserToken)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(404);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question not found");
-                    done();
-                });
-            });
-        });
-    });
-    describe("POST /questions/", function() {
-        describe("Success Response", function() {
-            it("Should return an object value with HTTP status code 201", function(done) {
-                chai.request(app)
-                .post("/questions")
-                .send(newQuestion)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    newQuestionId = res.body._id;
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(201);
-                    expect(res.body).to.be.an('object').to.have.any.keys("_id", "title", "description", "tags", "answers", "upvotes", "downvotes", "views", "UserId");
-                    done();
-                });
-            });
-        });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 400 because of empty title value", function(done) {
-                const emptyTitle = { ...newQuestion };
-                emptyTitle.title = "";
-                chai.request(app)
-                .post("/questions")
-                .send(emptyTitle)
-                .set("token", firstUserToken)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Title is required");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 400 because of title length below 3 characters", function(done) {
-                const lessTitle = { ...newQuestion };
-                lessTitle.title = "it";
-                chai.request(app)
-                .post("/questions")
-                .send(lessTitle)
-                .set("token", firstUserToken)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Minimum length is 3");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 400 because of empty description value", function(done) {
-                const emptyDescription = { ...newQuestion };
-                emptyDescription.description = "";
-                chai.request(app)
-                .post("/questions")
-                .send(emptyDescription)
-                .set("token", firstUserToken)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Description is required");
-                    done();
-                });
-            });
             it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
                 chai.request(app)
-                .post("/questions")
-                .send(newQuestion)
+                .get("/answers/user")
                 .end(function(err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(403);
@@ -277,224 +193,11 @@ describe("Question Routing Tests", function() {
             });
         });
     });
-    describe("PATCH /view/:id", function() {
+    describe("GET /answers/:id", function() {
         describe("Success Response", function() {
-            it("Should return an object value with HTTP status code 200", function(done) {
+            it("Should return an object value containing one answer with HTTP status code 200", function(done) {
                 chai.request(app)
-                .patch("/questions/view/"+firstQuestionId)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Viewed question");
-                    done();
-                });
-            });
-        });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
-                chai.request(app)
-                .patch("/questions/view/"+firstQuestionId)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 404 because question not found", function(done) {
-                chai.request(app)
-                .patch("/questions/view/"+wrongQuestionId)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(404);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question not found");
-                    done();
-                });
-            });
-        });
-    });
-    describe("PATCH /upvote/:id", function() {
-        describe("Success Response", function() {
-            it("Should return an object value with HTTP status code 200", function(done) {
-                chai.request(app)
-                .patch("/questions/upvote/"+firstQuestionId)
-                .set("token", secondUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Upvoted question");
-                    done();
-                });
-            });
-        });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
-                chai.request(app)
-                .patch("/questions/upvote/"+firstQuestionId)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 404 because question not found", function(done) {
-                chai.request(app)
-                .patch("/questions/upvote/"+wrongQuestionId)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(404);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question not found");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 403 because you cannot vote your own question", function(done) {
-                chai.request(app)
-                .patch("/questions/upvote/"+firstQuestionId)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You cannot vote your own question");
-                    done();
-                });
-            });
-        });
-    });
-    describe("PATCH /downvote/:id", function() {
-        describe("Success Response", function() {
-            it("Should return an object value with HTTP status code 200", function(done) {
-                chai.request(app)
-                .patch("/questions/downvote/"+firstQuestionId)
-                .set("token", secondUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Downvoted question");
-                    done();
-                });
-            });
-        });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
-                chai.request(app)
-                .patch("/questions/downvote/"+firstQuestionId)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 404 because question not found", function(done) {
-                chai.request(app)
-                .patch("/questions/downvote/"+wrongQuestionId)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(404);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question not found");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 403 because you cannot vote your own question", function(done) {
-                chai.request(app)
-                .patch("/questions/downvote/"+firstQuestionId)
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You cannot vote your own question");
-                    done();
-                });
-            });
-        });
-    });
-    describe("PATCH /solution/:id", function() {
-        describe("Success Response", function() {
-            it("Should return an object value with HTTP status code 200", function(done) {
-                chai.request(app)
-                .patch("/questions/solution/"+firstQuestionId)
-                .send({
-                    AnswerId: firstAnswerId
-                })
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(200);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Solution selected");
-                    done();
-                });
-            });
-        });
-        describe("Error Response", function() {
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
-                chai.request(app)
-                .patch("/questions/solution/"+firstQuestionId)
-                .send({
-                    AnswerId: firstAnswerId
-                })
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 404 because question not found", function(done) {
-                chai.request(app)
-                .patch("/questions/solution/"+wrongQuestionId)
-                .send({
-                    AnswerId: firstAnswerId
-                })
-                .set("token", firstUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(404);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question not found");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 403 because different user", function(done) {
-                chai.request(app)
-                .patch("/questions/solution/"+firstQuestionId)
-                .send({
-                    AnswerId: firstAnswerId
-                })
-                .set("token", secondUserToken)
-                .end( function (err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(401);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You are not authorized");
-                    done();
-                });
-            });
-        });
-    });
-    describe("PUT /questions/:id", function() {
-        describe("Success Response", function() {
-            it("Should return an object value with HTTP status code 200", function(done) {
-                chai.request(app)
-                .put("/questions/"+firstQuestionId)
-                .send(newQuestion)
+                .get("/answers/"+firstAnswerId)
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
@@ -505,67 +208,47 @@ describe("Question Routing Tests", function() {
             });
         });
         describe("Error Response", function() {
-            it("Should return an error with HTTP status code 400 because of empty title value", function(done) {
-                const emptyTitle = { ...newQuestion };
-                emptyTitle.title = "";
+            it("Should return an error with HTTP status code 404 because answer is not found", function(done) {
                 chai.request(app)
-                .put("/questions/"+firstQuestionId)
-                .send(emptyTitle)
+                .get("/answers/"+wrongAnswerId)
                 .set("token", firstUserToken)
                 .end(function(err, res) {
                     expect(err).to.be.null;
-                    expect(res).to.have.status(400);
+                    expect(res).to.have.status(404);
                     expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Title is required");
+                    expect(res.body.message).to.be.equal("Answer not found");
                     done();
                 });
             });
-            it("Should return an error with HTTP status code 400 because of title length below 3 characters", function(done) {
-                const lessTitle = { ...newQuestion };
-                lessTitle.title = "it";
+        });
+    });
+    describe("POST /answers/", function() {
+        describe("Success Response", function() {
+            it("Should return an object value with HTTP status code 201", function(done) {
                 chai.request(app)
-                .put("/questions/"+firstQuestionId)
-                .send(lessTitle)
+                .post("/answers")
+                .send({
+                    QuestionId: secondQuestionId,
+                    description: "I'm a web developer.",
+                })
                 .set("token", firstUserToken)
-                .end(function(err, res) {
+                .end( function (err, res) {
+                    newAnswerId = res.body._id;
                     expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Minimum length is 3");
+                    expect(res).to.have.status(201);
+                    expect(res.body).to.be.an("object").to.have.any.keys("_id","QuestionId","description","upvotes","downvotes","UserId");
                     done();
                 });
             });
-            it("Should return an error with HTTP status code 400 because of empty description value", function(done) {
-                const emptyDescription = { ...newQuestion };
-                emptyDescription.description = "";
-                chai.request(app)
-                .put("/questions/"+firstQuestionId)
-                .send(emptyDescription)
-                .set("token", firstUserToken)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(400);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.an("array").that.includes("Description is required");
-                    done();
-                });
-            });
-            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
-                chai.request(app)
-                .put("/questions/"+firstQuestionId)
-                .send(newQuestion)
-                .end(function(err, res) {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(403);
-                    expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("You must log in first");
-                    done();
-                });
-            });
+        });
+        describe("Error Response", function() {
             it("Should return an error with HTTP status code 404 because question not found", function(done) {
                 chai.request(app)
-                .put("/questions/"+wrongQuestionId)
-                .send(newQuestion)
+                .post("/answers")
+                .send({
+                    QuestionId: wrongQuestionId,
+                    description: "I'm a web developer.",
+                })
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
@@ -575,10 +258,244 @@ describe("Question Routing Tests", function() {
                     done();
                 });
             });
+            it("Should return an error with HTTP status code 400 because of empty description value", function(done) {
+                chai.request(app)
+                .post("/answers")
+                .send({
+                    QuestionId: secondQuestionId,
+                    description: "",
+                })
+                .set("token", firstUserToken)
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(400);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.an("array").that.includes("Description is required");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 400 because of description length below 3 characters", function(done) {
+                chai.request(app)
+                .post("/answers")
+                .send({
+                    QuestionId: secondQuestionId,
+                    description: "it",
+                })
+                .set("token", firstUserToken)
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(400);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.an("array").that.includes("Minimum length is 3");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
+                chai.request(app)
+                .post("/answers")
+                .send({
+                    QuestionId: secondQuestionId,
+                    description: "I'm a web developer.",
+                })
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You must log in first");
+                    done();
+                });
+            });
+        });
+    });
+    describe("PATCH /upvote/:id", function() {
+        describe("Success Response", function() {
+            it("Should return an object value with HTTP status code 200", function(done) {
+                chai.request(app)
+                .patch("/answers/upvote/"+firstAnswerId)
+                .set("token", secondUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("Upvoted answer");
+                    done();
+                });
+            });
+        });
+        describe("Error Response", function() {
+            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
+                chai.request(app)
+                .patch("/answers/upvote/"+firstAnswerId)
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You must log in first");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 404 because answer not found", function(done) {
+                chai.request(app)
+                .patch("/answers/upvote/"+wrongAnswerId)
+                .set("token", firstUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(404);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("Answer not found");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 403 because you cannot vote your own answer", function(done) {
+                chai.request(app)
+                .patch("/answers/upvote/"+firstAnswerId)
+                .set("token", firstUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You cannot vote your own answer");
+                    done();
+                });
+            });
+        });
+    });
+    describe("PATCH /downvote/:id", function() {
+        describe("Success Response", function() {
+            it("Should return an object value with HTTP status code 200", function(done) {
+                chai.request(app)
+                .patch("/answers/downvote/"+firstAnswerId)
+                .set("token", secondUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("Downvoted answer");
+                    done();
+                });
+            });
+        });
+        describe("Error Response", function() {
+            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
+                chai.request(app)
+                .patch("/answers/downvote/"+firstAnswerId)
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You must log in first");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 404 because answer not found", function(done) {
+                chai.request(app)
+                .patch("/answers/downvote/"+wrongAnswerId)
+                .set("token", firstUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(404);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("Answer not found");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 403 because you cannot vote your own answer", function(done) {
+                chai.request(app)
+                .patch("/answers/downvote/"+firstAnswerId)
+                .set("token", firstUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You cannot vote your own answer");
+                    done();
+                });
+            });
+        });
+    });
+    describe("PUT /answers/:id", function() {
+        describe("Success Response", function() {
+            it("Should return an object value with HTTP status code 200", function(done) {
+                chai.request(app)
+                .put("/answers/"+firstAnswerId)
+                .send({
+                    description: "I want to change my answer."
+                })
+                .set("token", firstUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.be.an("object").to.have.any.keys("_id","QuestionId","description","upvotes","downvotes","UserId");
+                    done();
+                });
+            });
+        });
+        describe("Error Response", function() {
+            it("Should return an error with HTTP status code 400 because of empty description value", function(done) {
+                chai.request(app)
+                .put("/answers/"+firstAnswerId)
+                .send({
+                    description: "",
+                })
+                .set("token", firstUserToken)
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(400);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.an("array").that.includes("Description is required");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 400 because of description length below 3 characters", function(done) {
+                chai.request(app)
+                .put("/answers/"+firstAnswerId)
+                .send({
+                    description: "it",
+                })
+                .set("token", firstUserToken)
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(400);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.an("array").that.includes("Minimum length is 3");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
+                chai.request(app)
+                .put("/answers/"+firstAnswerId)
+                .send({
+                    description: "I'm a web developer.",
+                })
+                .end(function(err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(403);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("You must log in first");
+                    done();
+                });
+            });
+            it("Should return an error with HTTP status code 404 because answer not found", function(done) {
+                chai.request(app)
+                .put("/answers/"+wrongAnswerId)
+                .send({
+                    description: "I'm a web developer.",
+                })
+                .set("token", firstUserToken)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(404);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.be.equal("Answer not found");
+                    done();
+                });
+            });
             it("Should return an error with HTTP status code 403 because different user", function(done) {
                 chai.request(app)
-                .put("/questions/"+firstQuestionId)
-                .send(newQuestion)
+                .put("/answers/"+firstAnswerId)
+                .send({
+                    description: "I'm a web developer.",
+                })
                 .set("token", secondUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
@@ -590,17 +507,17 @@ describe("Question Routing Tests", function() {
             });
         });
     });
-    describe("DELETE /questions/:id", function() {
+    describe("DELETE /answers/:id", function() {
         describe("Success Response", function() {
             it("Should return an object value with HTTP status code 200", function(done) {
                 chai.request(app)
-                .delete("/questions/"+firstQuestionId)
+                .delete("/answers/"+firstAnswerId)
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an('object').to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question deleted successfully");
+                    expect(res.body.message).to.be.equal("Answer deleted successfully");
                     done();
                 });
             });
@@ -608,7 +525,7 @@ describe("Question Routing Tests", function() {
         describe("Error Response", function() {
             it("Should return an error with HTTP status code 403 because user not logged in", function(done) {
                 chai.request(app)
-                .delete("/questions/"+newQuestionId)
+                .delete("/answers/"+newAnswerId)
                 .end(function(err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(403);
@@ -617,21 +534,21 @@ describe("Question Routing Tests", function() {
                     done();
                 });
             });
-            it("Should return an error with HTTP status code 404 because question not found", function(done) {
+            it("Should return an error with HTTP status code 404 because answer not found", function(done) {
                 chai.request(app)
-                .delete("/questions/"+wrongQuestionId)
+                .delete("/answers/"+wrongAnswerId)
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;
                     expect(res).to.have.status(404);
                     expect(res.body).to.be.an("object").to.have.any.keys("message");
-                    expect(res.body.message).to.be.equal("Question not found");
+                    expect(res.body.message).to.be.equal("Answer not found");
                     done();
                 });
             });
             it("Should return an error with HTTP status code 403 because different user", function(done) {
                 chai.request(app)
-                .delete("/questions/"+secondQuestionId)
+                .delete("/answers/"+secondAnswerId)
                 .set("token", firstUserToken)
                 .end( function (err, res) {
                     expect(err).to.be.null;

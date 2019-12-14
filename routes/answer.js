@@ -4,6 +4,8 @@ const authentication = require("../middlewares/authentication");
 const AnswerAuthorization = require("../middlewares/answerAuthorization");
 
 router.get("/", AnswerController.findAll);
+router.get("/question/:id", AnswerController.findQuestion);
+router.get("/user", authentication, AnswerController.findUser);
 router.get("/:id", AnswerController.findOne);
 
 router.use(authentication);
