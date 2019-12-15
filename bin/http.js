@@ -17,6 +17,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (data) => {
+        socket.join(`/room/${data.id}`)
         socket.broadcast.emit('joinRoom', { id: data.id, msg: data.msg })
     })
 
@@ -26,6 +27,14 @@ io.on('connection', (socket) => {
 
     socket.on('leave-room', (data) => {
         socket.broadcast.emit('leaveRoom', { id: data.id, msg: data.msg })
+    })
+
+    socket.on('in-game', () => {
+        socket.broadcast.emit('inGame', 'In game')
+    })
+
+    socket.on('success-challenge', () => {
+        socket.broadcast.emit('successChallenge', 'Hello')
     })
 })
 
