@@ -1,4 +1,4 @@
-const { createRoom, getAll, getOne, joinRoom, changeStatus, leaveRoom, removeRoom, roomFull } = require('../controllers/room')
+const { createRoom, getAll, getOne, joinRoom, successChallenge, changeStatus, leaveRoom, removeRoom, roomFull } = require('../controllers/room')
 const router = require('express').Router()
 const authenticate = require('../middlewares/authentication')
 
@@ -19,5 +19,7 @@ router.patch('/leave/:id', leaveRoom)
 router.patch('/full/:id', roomFull)
 
 router.delete('/:id', removeRoom)
+
+router.delete('/success/:id', successChallenge)
 
 module.exports = router
