@@ -107,5 +107,18 @@ module.exports = {
                 res.status(200).json({ room })
             })
             .catch(next)
+    },
+    successChallenge(req, res, next) {
+        Room.findById(req.params.id)
+            .then(room => {
+                if (!room) throw { status: 404, message: 'Room not found' }
+                else {
+                    return Room.findByIdAndDelete(req.params.id)
+                }
+            })
+            .then(() => {
+                res.status(200).json({ message: 'Delete success' })
+            })
+            .catch(next)
     }
 }
