@@ -27,6 +27,7 @@ class QuestionController {
         .sort({
             createdAt: "DESC"
         })
+        .populate("UserId", "-password")
         .then((questions) => {
             res.status(200).json(questions);
         })
@@ -108,8 +109,8 @@ class QuestionController {
     
     static delete (req, res, next) {
         Question.findByIdAndDelete(req.params.id)
-        .then((question) => {            
-            if (question.deletedCount > 0) {
+        .then((question) => {  
+            if (question) {
                 return Answer.deleteMany({ QuestionId: req.params.id });
             }
             else {
