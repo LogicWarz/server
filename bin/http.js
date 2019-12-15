@@ -17,11 +17,12 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (data) => {
+        socket.join(`/room/${data.id}`)
         socket.broadcast.emit('joinRoom', { id: data.id, msg: data.msg })
     })
 
     socket.on('play-game', (data) => {
-        io.emit('playGame', { id: data.id, msg: data.msg })
+        socket.broadcast.emit('playGame', { id: data.id, msg: data.msg })
     })
 
     socket.on('leave-room', (data) => {
@@ -33,7 +34,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('success-challenge', () => {
-        io.emit('successChallenge', 'Hello')
+        socket.broadcast.emit('successChallenge', 'Hello')
     })
 })
 
