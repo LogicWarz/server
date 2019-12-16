@@ -13,6 +13,7 @@ class AnswerController {
             res.status(200).json(answers);
         })
         .catch((err) => {
+            /* istanbul ignore next */
             next(err);
         });
     }
@@ -29,7 +30,8 @@ class AnswerController {
                     createdAt: "DESC"
                 }
             },
-            populate: {
+
+                populate: {
                 path: "UserId",
                 model: "User"
             }
@@ -42,6 +44,7 @@ class AnswerController {
             res.status(200).json(answers);
         })
         .catch((err) => {
+            /* istanbul ignore next */
             next(err);
         });
     }
@@ -59,6 +62,7 @@ class AnswerController {
             res.status(200).json(answers);
         })
         .catch((err) => {
+            /* istanbul ignore next */
             next(err);
         });
     }
@@ -77,6 +81,7 @@ class AnswerController {
             }
         })
         .catch((err) => {
+            /* istanbul ignore next */
             next(err);
         });
     }
@@ -124,6 +129,7 @@ class AnswerController {
         .populate("QuestionId")
         .populate("UserId", "-password")
         .then((answer) => {
+            /* istanbul ignore next */
             if (answer) {
                 res.status(200).json(answer);
             } 
@@ -139,10 +145,14 @@ class AnswerController {
     
     static delete (req, res, next) {
         Answer.findByIdAndDelete(req.params.id)
+        /* istanbul ignore next */
         .then((answer) => {
+
+            /* istanbul ignore next */
             if (answer) {
                 return Question.findByIdAndUpdate(answer.QuestionId, { $pull: { answers: answer._id } });
             }
+            /* istanbul ignore next */
             else {
                 let err = { status: 404, message: `Answer not found` };
                 next(err);
@@ -152,6 +162,7 @@ class AnswerController {
             res.status(200).json({ message: "Answer deleted successfully" });
         })
         .catch((err) => {
+            /* istanbul ignore next */
             next(err);
         });
     }

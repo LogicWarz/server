@@ -8,11 +8,14 @@ function authentication (req, res, next) {
             email: decoded.email
         })
         .then((user) => {
+            /* istanbul ignore next */
             if (user) {
                 req.user = decoded;
                 next();
             } else {
+                /* istanbul ignore next */
                 let err = { status: 404, message: `User not found` }
+                /* istanbul ignore next */
                 next(err);
             }
         });

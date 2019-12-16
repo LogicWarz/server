@@ -1,15 +1,16 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const sinon = require("sinon");
-const verification = require("../middlewares/verification");
-sinon.replace(verification, "verification", (req, res, next) => {
-    req.user = {
-        name: "Edison",
-        email: "edirates@gmail.com"
-    };
-    next();
-});
-const app = require("../app");
+// const sinon = require("sinon");
+// const verification = require("../middlewares/verification");
+// sinon.replace(verification, "verification", (req, res, next) => {
+//     req.user = {
+//         name: "Edison",
+//         email: "edirates@gmail.com"
+//     };
+//     next();
+// });
+// const app = require("../app");
+const { app } = require("./sinon");
 const User = require("../models/user");
 
 // Use Chai HTTP
@@ -30,6 +31,21 @@ let userSignIn = {
 
 let userToken = "";
 
+describe("Root Path Testing", function () {
+    describe("Success Response", function () {
+        it("Should return an object value contains message with HTTP status code 200", function (done) {
+            chai.request(app)
+                .get("/")
+                .end(function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.be.an("object").to.have.any.keys("message");
+                    expect(res.body.message).to.equal("Welcome to LogicWarz");
+                    done();
+                });
+        });
+    });
+});
 describe("User Routing Tests", function () {
     // Hooks before doing testing
     before(function (done) {
@@ -256,22 +272,22 @@ describe("User Routing Tests", function () {
             });
         });
     });
-    // describe("POST /users/gsignin", function() {
-    //     describe("Success Response", function() {
-    //         it("Should return an object value contains token with HTTP status code 200", function(done) {
-    //             chai.request(app)
-    //             .post("/users/gsignin")
-    //             .send(userSignIn)
-    //             .end( function (err, res) {
-    //                 expect(err).to.be.null;
-    //                 expect(res).to.have.status(200);
-    //                 expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
-    //                 expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
-    //                 done();
-    //             });
-    //         });
-    //     });
-    // });
+    describe("POST /users/gsignin", function() {
+        describe("Success Response", function() {
+            it("Should return an object value contains token with HTTP status code 200", function(done) {
+                chai.request(app)
+                .post("/users/gsignin")
+                .send(userSignIn)
+                .end( function (err, res) {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(200);
+                    expect(res.body).to.be.an("object").to.have.any.keys("user_data","token");
+                    expect(res.body.user_data).to.be.an("object").to.have.any.keys("_id","email","password","name","points");
+                    done();
+                });
+            });
+        });
+    });
     describe("GET /users", function () {
         describe("Success Response", function () {
             it("Should return an object value containing user data with HTTP status code 200", function (done) {
