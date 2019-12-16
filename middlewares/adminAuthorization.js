@@ -12,6 +12,7 @@ function authorization (req, res, next) {
         }
     })
     .catch((err) => {
+        /* istanbul ignore next */
         next(err);
     });
 }

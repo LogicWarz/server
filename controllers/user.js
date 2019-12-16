@@ -33,20 +33,25 @@ class UserController {
                 }
             })
             .catch((err) => {
+                /* istanbul ignore next */
                 next(err);
             });
     }
     static findOne(req, res, next) {
         User.findById(req.user._id)
             .then((user) => {
+                /* istanbul ignore next */
                 if (user) {
                     res.status(200).json(user);
-                } else {
+                } 
+                /* istanbul ignore next */
+                else {
                     let err = { status: 403, message: `You must log in first` };
                     next(err);
                 }
             })
             .catch((err) => {
+                /* istanbul ignore next */
                 next(err);
             });
     }
@@ -54,10 +59,14 @@ class UserController {
         User.findOne({
             email: req.user.email
         })
+            /* istanbul ignore next */
             .then((user) => {
+                /* istanbul ignore next */
                 if (user) {
                     return user;
-                } else {
+                } 
+                /* istanbul ignore next */
+                else {
                     return User.create({
                         email: req.user.email,
                         password: process.env.DEFAULT_PASSWORD,
@@ -71,6 +80,7 @@ class UserController {
                 res.status(200).json({ user_data, token });
             })
             .catch((err) => {
+                /* istanbul ignore next */
                 next(err);
             });
     }
