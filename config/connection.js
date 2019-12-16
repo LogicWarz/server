@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-let mode = "";
+let database = process.env.MONGO_DB;
 /* istanbul ignore next */
 if (process.env.NODE_ENV === "testing") {
-    mode = "-test";
+    database = process.env.MONGO_DB_TEST;
 }
-mongoose.connect(process.env.MONGO_DB + mode, {
+mongoose.connect(database, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useFindAndModify: false,
