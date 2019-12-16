@@ -35,7 +35,7 @@ class ChallengeController {
   static getRandom(req, res, next) {
     Challenge
       .find({
-        difficulty: req.query.difficulty
+        difficulty: new RegExp(`${req.query.difficulty}`, 'gi')
       })
       .then(result => {
         let index = Math.floor(Math.random() * result.length)

@@ -30,6 +30,7 @@ class AnswerController {
                     createdAt: "DESC"
                 }
             },
+
                 populate: {
                 path: "UserId",
                 model: "User"
@@ -146,6 +147,7 @@ class AnswerController {
         Answer.findByIdAndDelete(req.params.id)
         /* istanbul ignore next */
         .then((answer) => {
+
             /* istanbul ignore next */
             if (answer) {
                 return Question.findByIdAndUpdate(answer.QuestionId, { $pull: { answers: answer._id } });
