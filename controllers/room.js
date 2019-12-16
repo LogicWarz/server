@@ -1,17 +1,29 @@
 const Room = require('../models/room')
+const axios = require('axios')
 
 module.exports = {
     createRoom(req, res, next) {
+        let idChallenge = null
         const { title, level } = req.body
         if (!title || !level) {
             throw { status: 400, message: 'Please input required field' }
         }
-        Room.findOne({ title })
+        axios({
+            method: 'get',
+            url: `http://localhost:3000/challenges/random?difficulty=${level}`,
+            headers: {
+                token: req.headers.token
+            }
+        })
+            .then(({ data }) => {
+                idChallenge = data._id
+                return Room.findOne({ title })
+            })
             .then(room => {
                 if (room) {
                     throw { status: 400, message: 'Room already exists' }
                 } else {
-                    return Room.findOneAndUpdate({ title }, { title, level, $push: { players: req.user._id } }, { new: true, upsert: true })
+                    return Room.findOneAndUpdate({ title }, { title, level, $push: { players: req.user._id }, challenge: idChallenge }, { new: true, upsert: true }).populate('challenge')
                 }
             })
             .then(room => {
@@ -28,7 +40,7 @@ module.exports = {
             .catch(next)
     },
     getOne(req, res, next) {
-        Room.findById(req.params.id).populate('players')
+        Room.findById(req.params.id).populate('players').populate('challenge')
             .then(room => {
                 res.status(200).json({ room })
             })

@@ -18,6 +18,11 @@ const roomSchema = new Schema({
         type: String,
         enum: ['open', 'closed'],
         default: 'open'
+    },
+    challenge: {
+        type: Schema.Types.ObjectId,
+        ref: 'Challenge',
+        required: true
     }
 }, { timestamps: true })
 
