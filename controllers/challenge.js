@@ -2,11 +2,12 @@ const Challenge = require('../models/challenge')
 
 class ChallengeController {
   static create(req, res, next) {
-    const { title, description, testCase, difficulty } = req.body
+    const { title, description, skeletonCode, testCase, difficulty } = req.body
     Challenge
       .create({
         title,
         description,
+        skeletonCode,
         testCase,
         difficulty
       })
@@ -31,12 +32,24 @@ class ChallengeController {
       })
       .catch(next)
   }
+  static getRandom(req, res, next) {
+    Challenge
+      .find({
+        difficulty: req.query.difficulty
+      })
+      .then(result => {
+        let index = Math.floor(Math.random() * result.length)
+        res.status(200).json(result[index])
+      })
+      .catch(next)
+  }
   static updateId(req, res, next) {
-    const { title, description, testCase, difficulty } = req.body
+    const { title, description, skeletonCode, testCase, difficulty } = req.body
     Challenge
       .findByIdAndUpdate(req.params.id, {
         title,
         description,
+        skeletonCode,
         testCase,
         difficulty
       }, {

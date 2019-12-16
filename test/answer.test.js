@@ -321,6 +321,42 @@ describe("Answer Routing Tests", function () {
                         done();
                     });
             });
+            it("Should return an object value with HTTP status code 200", function (done) {
+                chai.request(app)
+                    .patch("/answers/upvote/" + firstAnswerId)
+                    .set("token", secondUserToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("Upvoted answer");
+                        done();
+                    });
+            });
+            it("Should return an object value with HTTP status code 200", function (done) {
+                chai.request(app)
+                    .patch("/answers/downvote/" + firstAnswerId)
+                    .set("token", secondUserToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("Downvoted answer");
+                        done();
+                    });
+            });
+            it("Should return an object value with HTTP status code 200", function (done) {
+                chai.request(app)
+                    .patch("/answers/upvote/" + firstAnswerId)
+                    .set("token", secondUserToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("Upvoted answer");
+                        done();
+                    });
+            });
         });
         describe("Error Response", function () {
             it("Should return an error with HTTP status code 403 because user not logged in", function (done) {
@@ -362,6 +398,18 @@ describe("Answer Routing Tests", function () {
     });
     describe("PATCH /downvote/:id", function () {
         describe("Success Response", function () {
+            it("Should return an object value with HTTP status code 200", function (done) {
+                chai.request(app)
+                    .patch("/answers/downvote/" + firstAnswerId)
+                    .set("token", secondUserToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("Downvoted answer");
+                        done();
+                    });
+            });
             it("Should return an object value with HTTP status code 200", function (done) {
                 chai.request(app)
                     .patch("/answers/downvote/" + firstAnswerId)

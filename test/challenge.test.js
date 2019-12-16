@@ -56,25 +56,20 @@ describe("Testing: Challenge", function () {
   })
   describe('POST /challenges', function () {
     let newChallenge = {
-      "title": "Test",
-      "description": "test",
+      "title": "Remove String Spaces",
+      "description": "Simple, remove the spaces from the string, then return the resultant string.",
+      "skeletonCode": "function noSpace(x){}",
       "testCase": [
         {
-          "input": {
-            "a": 1,
-            "b": 2
-          },
-          "output": 3
+          "input": "8 j 8   mBliB8g  imjB8B8  jl  B",
+          "output": "8j8mBliB8gimjB8B8jlB"
         },
         {
-          "input": {
-            "a": 2,
-            "b": 2
-          },
-          "output": 4
+          "input": "8aaaaa dddd r     ",
+          "output": "8aaaaaddddr"
         }
       ],
-      "difficulty": "easy"
+      "difficulty": "beginner"
     }
     describe('Success Response', function () {
       afterEach(function (done) {
@@ -99,6 +94,7 @@ describe("Testing: Challenge", function () {
                 "title",
                 "description",
                 "difficulty",
+                "skeletonCode",
                 "testCase",
                 "createdAt",
                 "updatedAt"
@@ -112,6 +108,9 @@ describe("Testing: Challenge", function () {
             expect(res.body.difficulty)
               .to.be.a("string")
               .to.equal(newChallenge.difficulty);
+            expect(res.body.skeletonCode)
+              .to.be.a("string")
+              .to.equal(newChallenge.skeletonCode);
             expect(res.body.testCase)
               .to.be.an("array")
             done()
@@ -220,6 +219,26 @@ describe("Testing: Challenge", function () {
             done();
           });
       });
+      it('should return "Skeleton code is required" with status code 400 when submit form without skeleton code', function (done) {
+        const withoutSkeletonCode = { ...newChallenge }
+        delete withoutSkeletonCode.skeletonCode
+        chai
+          .request(app)
+          .post("/challenges")
+          .set("token", adminToken)
+          .send(withoutSkeletonCode)
+          .end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(400);
+            expect(res.body)
+              .to.be.an("object")
+              .to.have.any.keys("message");
+            expect(res.body.message)
+              .to.be.an("array")
+              .that.includes("Skeleton code is required");
+            done();
+          });
+      });
     })
   })
   describe('GET /challenges', function () {
@@ -228,6 +247,7 @@ describe("Testing: Challenge", function () {
         {
           "title": "Test1",
           "description": "test1",
+          "skeletonCode": "return x",
           "testCase": [
             {
               "input": {
@@ -237,11 +257,12 @@ describe("Testing: Challenge", function () {
               "output": 3
             }
           ],
-          "difficulty": "easy"
+          "difficulty": "beginner"
         },
         {
           "title": "Test2",
           "description": "test2",
+          "skeletonCode": "return x",
           "testCase": [
             {
               "input": {
@@ -251,11 +272,12 @@ describe("Testing: Challenge", function () {
               "output": 3
             }
           ],
-          "difficulty": "medium"
+          "difficulty": "intermediate"
         },
         {
           "title": "Test3",
           "description": "test3",
+          "skeletonCode": "return x",
           "testCase": [
             {
               "input": {
@@ -265,7 +287,7 @@ describe("Testing: Challenge", function () {
               "output": 3
             }
           ],
-          "difficulty": "hard"
+          "difficulty": "advanced"
         }
       ]
       Challenge
@@ -297,6 +319,7 @@ describe("Testing: Challenge", function () {
                 "_id",
                 "title",
                 "description",
+                "skeletonCode",
                 "testCase",
                 "difficulty",
                 "createdAt",
@@ -330,6 +353,7 @@ describe("Testing: Challenge", function () {
     let newChallenge = {
       "title": "Test",
       "description": "test",
+      "skeletonCode": "return x",
       "testCase": [
         {
           "input": {
@@ -339,7 +363,7 @@ describe("Testing: Challenge", function () {
           "output": 3
         },
       ],
-      "difficulty": "easy"
+      "difficulty": "beginner"
     }
     before(function (done) {
       Challenge
@@ -371,6 +395,7 @@ describe("Testing: Challenge", function () {
                 "_id",
                 "title",
                 "description",
+                "skeletonCode",
                 "testCase",
                 "difficulty",
                 "createdAt",
@@ -399,11 +424,118 @@ describe("Testing: Challenge", function () {
       });
     })
   })
+  describe('GET /challenges/random', function () {
+    before(function (done) {
+      let challenges = [
+        {
+          "title": "Test1",
+          "description": "test1",
+          "skeletonCode": "return x",
+          "testCase": [
+            {
+              "input": {
+                "a": 1,
+                "b": 2
+              },
+              "output": 3
+            }
+          ],
+          "difficulty": "beginner"
+        },
+        {
+          "title": "Test2",
+          "description": "test2",
+          "skeletonCode": "return x",
+          "testCase": [
+            {
+              "input": {
+                "a": 1,
+                "b": 2
+              },
+              "output": 3
+            }
+          ],
+          "difficulty": "beginner"
+        },
+        {
+          "title": "Test3",
+          "description": "test3",
+          "skeletonCode": "return x",
+          "testCase": [
+            {
+              "input": {
+                "a": 1,
+                "b": 2
+              },
+              "output": 3
+            }
+          ],
+          "difficulty": "beginner"
+        }
+      ]
+      Challenge
+        .insertMany(challenges)
+        .then(_ => done())
+        .catch(console.log)
+    })
+    after(function (done) {
+      Challenge
+        .deleteMany({})
+        .then(_ => done())
+        .catch(console.log)
+    })
+    describe('Success Response', function () {
+      it('Should return one beginner challenge', function (done) {
+        chai
+          .request(app)
+          .get('/challenges/random')
+          .query({ difficulty: 'beginner' })
+          .set('token', playerToken)
+          .end(function (err, res) {
+            expect(err).to.be.null
+            expect(res).to.have.status(200)
+            expect(res.body)
+              .to.be.an("object")
+              .to.have.all.keys(
+                "_id",
+                "title",
+                "description",
+                "skeletonCode",
+                "testCase",
+                "difficulty",
+                "createdAt",
+                "updatedAt"
+              );
+            done()
+          })
+      })
+    })
+    describe('Error Response', function () {
+      it("should send an error with 403 status code because no user login", function (done) {
+        chai
+          .request(app)
+          .get('/challenges/random')
+          .query({ difficulty: 'beginner' })
+          .end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(403);
+            expect(res.body)
+              .to.be.an("object")
+              .to.have.any.keys("message");
+            expect(res.body.message)
+              .to.be.a("string")
+              .to.equal('You must log in first');
+            done();
+          });
+      });
+    })
+  })
   describe('PATCH /challenges/:id', function () {
     let challengeId = ''
     let challenge = {
       "title": "Test",
       "description": "test",
+      "skeletonCode": "return x",
       "testCase": [
         {
           "input": {
@@ -413,11 +545,12 @@ describe("Testing: Challenge", function () {
           "output": 3
         },
       ],
-      "difficulty": "easy"
+      "difficulty": "beginner"
     }
     let newChallenge = {
       "title": "NewTest",
       "description": "newTest",
+      "skeletonCode": "return x",
       "testCase": [
         {
           "input": {
@@ -427,7 +560,7 @@ describe("Testing: Challenge", function () {
           "output": 4
         },
       ],
-      "difficulty": "medium"
+      "difficulty": "intermediate"
     }
     before(function (done) {
       Challenge
@@ -461,6 +594,7 @@ describe("Testing: Challenge", function () {
                 "title",
                 "description",
                 "difficulty",
+                "skeletonCode",
                 "testCase",
                 "createdAt",
                 "updatedAt"
@@ -474,6 +608,9 @@ describe("Testing: Challenge", function () {
             expect(res.body.difficulty)
               .to.be.a("string")
               .to.equal(newChallenge.difficulty);
+            expect(res.body.skeletonCode)
+              .to.be.a("string")
+              .to.equal(newChallenge.skeletonCode);
             expect(res.body.testCase)
               .to.be.an("array")
             done()
@@ -583,6 +720,7 @@ describe("Testing: Challenge", function () {
     let newChallenge = {
       "title": "Test",
       "description": "test",
+      "skeletonCode": "return x",
       "testCase": [
         {
           "input": {
@@ -592,7 +730,7 @@ describe("Testing: Challenge", function () {
           "output": 3
         },
       ],
-      "difficulty": "easy"
+      "difficulty": "beginner"
     }
     before(function (done) {
       Challenge
@@ -624,6 +762,7 @@ describe("Testing: Challenge", function () {
                 "_id",
                 "title",
                 "description",
+                "skeletonCode",
                 "testCase",
                 "difficulty",
                 "createdAt",

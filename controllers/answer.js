@@ -21,7 +21,19 @@ class AnswerController {
         Answer.find({
             UserId: req.user._id
         })
-        .populate("QuestionId")
+        .populate({
+            path: "QuestionId",
+            model: "Question",
+            options: {
+                sort: {
+                    createdAt: "DESC"
+                }
+            },
+            populate: {
+                path: "UserId",
+                model: "User"
+            }
+        })
         .populate("UserId", "-password")
         .sort({
             createdAt: "DESC"
@@ -128,7 +140,7 @@ class AnswerController {
     static delete (req, res, next) {
         Answer.findByIdAndDelete(req.params.id)
         .then((answer) => {
-            if (answer.deletedCount > 0) {
+            if (answer) {
                 return Question.findByIdAndUpdate(answer.QuestionId, { $pull: { answers: answer._id } });
             }
             else {

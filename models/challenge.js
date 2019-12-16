@@ -9,9 +9,12 @@ const challengeSchema = new Schema({
     type: String,
     required: [true, 'Description is required']
   },
+  skeletonCode: {
+    type: String,
+    required: [true, 'Skeleton code is required']
+  },
   testCase: [{
-    type: Object,
-    required: [true, 'Answer Key is required']
+    type: Object
   }],
   difficulty: {
     type: String,
