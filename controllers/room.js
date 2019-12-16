@@ -3,12 +3,16 @@ const axios = require('axios')
 
 module.exports = {
     createRoom(req, res, next) {
-        console.log(req.body)
+        /* istanbul ignore next */
         let idChallenge = null
+        /* istanbul ignore next */
         const { title, level } = req.body
+        /* istanbul ignore next */
         if (!title || !level) {
+            /* istanbul ignore next */
             throw { status: 400, message: 'Please input required field' }
         }
+        /* istanbul ignore next */
         axios({
             method: 'get',
             url: `http://localhost:3000/challenges/random?difficulty=${level}`,
@@ -17,21 +21,26 @@ module.exports = {
             }
         })
             .then(({ data }) => {
-                console.log(data)
+                // console.log('0-0-0-', data)
                 idChallenge = data._id
+                /* istanbul ignore next */
                 return Room.findOne({ title })
             })
             .then(room => {
                 if (room) {
+                    /* istanbul ignore next */
                     throw { status: 400, message: 'Room already exists' }
                 } else {
+                    /* istanbul ignore next */
                     return Room.findOneAndUpdate({ title }, { title, level, $push: { players: req.user._id }, challenge: idChallenge }, { new: true, upsert: true }).populate('challenge')
                 }
             })
             .then(room => {
-                console.log(room, 'ini room baru')
+                /* istanbul ignore next */
+                // console.log(room, 'ini room baru')
                 res.status(201).json({ room })
             })
+            /* istanbul ignore next */
             .catch(next)
     },
     getAll(req, res, next) {
@@ -140,10 +149,10 @@ module.exports = {
             .catch(next)
     },
     successChallenge(req, res, next) {
-        console.log('ini params ====', req.params.id)
+        // console.log('ini params ====', req.params.id)
         Room.findById(req.params.id)
             .then(room => {
-                console.log('ini room ====', room)
+                // console.log('ini room ====', room)
                 if (!room) throw { status: 404, message: 'Room not found' }
                 else {
                     return Room.findByIdAndDelete(req.params.id)
