@@ -2,13 +2,14 @@ const app = require('../app')
 const http = require('http')
 
 const PORT = process.env.PORT || 3000
-const server = http.Server(app)
-const io = require('socket.io')(server)
+const server = http.createServer(app)
+const io = require('socket.io').listen(server)
 
 io.on('connection', (socket) => {
     console.log('socket.io is now connected')
-
     socket.on('getRoom', (data) => {
+        console.log('000000000000', data._id)
+        socket.join(data._id)
         io.emit('getRoom', data)
     })
 
@@ -17,24 +18,39 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (data) => {
-        socket.join(`/room/${data.id}`)
-        socket.broadcast.emit('joinRoom', { id: data.id, msg: data.msg })
+        console.log('000000000000', data.id)
+        socket.join(data.id)
+        io.to(data.id).emit('joinRoom', { id: data.id, msg: data.msg })
     })
 
     socket.on('play-game', (data) => {
-        socket.broadcast.emit('playGame', { id: data.id, msg: data.msg })
+        socket.to(data.id).broadcast.emit('playGame', { id: data.id, msg: data.msg })
     })
 
     socket.on('leave-room', (data) => {
-        socket.broadcast.emit('leaveRoom', { id: data.id, msg: data.msg })
+        socket.leave(data.id)
+        socket.to(data.id).broadcast.emit('leaveRoom', { id: data.id, msg: data.msg })
     })
 
     socket.on('in-game', () => {
         socket.broadcast.emit('inGame', 'In game')
     })
 
-    socket.on('success-challenge', () => {
-        socket.broadcast.emit('successChallenge', 'Hello')
+    socket.on('success-challenge', ({ id, room }) => {
+        io.to(room).emit('successChallenge', { id })
+    })
+
+    socket.on('winner-page', () => {
+        socket.emit('pageWinner')
+    })
+
+    socket.on('room-gone', ({ id }) => {
+        socket.leave(id)
+        socket.broadcast.emit('roomGone')
+    })
+
+    socket.on('wadidaw', function ({ winner }) {
+        socket.broadcast.emit('jiwa', winner)
     })
 })
 

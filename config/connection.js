@@ -6,10 +6,11 @@ if (process.env.NODE_ENV === "testing") {
 mongoose.connect(process.env.MONGO_DB + mode, {
     useCreateIndex: true,
     useNewUrlParser: true,
+    useFindAndModify: false,
     useUnifiedTopology: true
-}, function(err){
-    if (err)    console.log(`Failed to connect database.`);
-    else        console.log(`Success to connect database.`);
+}, function (err) {
+    if (err) console.log(`Failed to connect database.`);
+    else console.log(`Success to connect database.`);
 });
 
 module.exports = mongoose;
