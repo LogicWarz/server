@@ -5,7 +5,7 @@ function errorHandler(err, req, res, next) {
     let message = err.message || `Internal Server Error`;
     /* istanbul ignore next */
     switch (err.name) {
-        case "JsonWebTokenError":        
+        case "JsonWebTokenError":
             /* istanbul ignore next */
             status = 400;
             /* istanbul ignore next */
