@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === "testing") {
 mongoose.connect(process.env.MONGO_DB + mode, {
     useCreateIndex: true,
     useNewUrlParser: true,
+    useFindAndModify: false,
     useUnifiedTopology: true
 }, function(err){
     /* istanbul ignore next */
