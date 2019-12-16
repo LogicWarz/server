@@ -3,6 +3,7 @@ const axios = require('axios')
 
 module.exports = {
     createRoom(req, res, next) {
+        console.log(req.body)
         let idChallenge = null
         const { title, level } = req.body
         if (!title || !level) {
@@ -16,6 +17,7 @@ module.exports = {
             }
         })
             .then(({ data }) => {
+                console.log(data)
                 idChallenge = data._id
                 return Room.findOne({ title })
             })
