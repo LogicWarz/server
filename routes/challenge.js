@@ -5,6 +5,7 @@ const challengeController = require('../controllers/challenge')
 
 router.use(authentication);
 router.get('/', challengeController.getAll)
+router.get('/random', challengeController.getRandom)
 router.get('/:id', challengeController.getId)
 
 router.use(adminAuthorization);
