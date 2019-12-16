@@ -14,9 +14,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('remove-room', () => {
+        console.log('test remove masuk')
         io.emit('remove-room')
+        // io.emit('refetchRoom')
     })
-
     socket.on('join-room', (data) => {
         console.log('000000000000', data.id)
         socket.join(data.id)
@@ -47,6 +48,10 @@ io.on('connection', (socket) => {
     socket.on('room-gone', ({ id }) => {
         socket.leave(id)
         socket.broadcast.emit('roomGone')
+    })
+
+    socket.on('room-closed', () => {
+        io.emit('closing')
     })
 
     socket.on('wadidaw', function ({ winner }) {
