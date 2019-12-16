@@ -6,8 +6,16 @@ module.exports = {
         if (!title || !level) {
             throw { status: 400, message: 'Please input required field' }
         }
-        Room.findOneAndUpdate({ title }, { title, level, $push: { players: req.user._id } }, { upsert: true, new: true })
+        Room.findOne({ title })
             .then(room => {
+                if (room) {
+                    throw { status: 400, message: 'Room already exists' }
+                } else {
+                    return Room.findOneAndUpdate({ title }, { title, level, $push: { players: req.user._id } }, { new: true, upsert: true })
+                }
+            })
+            .then(room => {
+                console.log(room, 'ini room baru')
                 res.status(201).json({ room })
             })
             .catch(next)
@@ -65,6 +73,7 @@ module.exports = {
             .catch(next)
     },
     leaveRoom(req, res, next) {
+        let roomTemp = null
         Room.findById(req.params.id)
             .then(room => {
                 if (!room) {
@@ -74,7 +83,15 @@ module.exports = {
                 }
             })
             .then(room => {
-                res.status(200).json({ room })
+                roomTemp = room
+                if (room.players.length == 0) {
+                    return Room.findByIdAndDelete(req.params.id)
+                } else {
+                    return res.status(200).json({ room })
+                }
+            })
+            .then(() => {
+                res.status(200).json({ room: roomTemp })
             })
             .catch(next)
     },
@@ -109,8 +126,10 @@ module.exports = {
             .catch(next)
     },
     successChallenge(req, res, next) {
+        console.log('ini params ====', req.params.id)
         Room.findById(req.params.id)
             .then(room => {
+                console.log('ini room ====', room)
                 if (!room) throw { status: 404, message: 'Room not found' }
                 else {
                     return Room.findByIdAndDelete(req.params.id)
