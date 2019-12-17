@@ -54,8 +54,10 @@ io.on('connection', (socket) => {
         io.emit('closing')
     })
 
-    socket.on('wadidaw', function ({ winner }) {
-        socket.broadcast.emit('jiwa', winner)
+    socket.on('wadidaw', function ({ winner, room }) {
+        // console.log('testetst', winner)
+        // console.log('rommmm', room)
+        io.to(room).emit('sendWinner', winner)
     })
 })
 
