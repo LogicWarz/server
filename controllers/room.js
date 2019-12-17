@@ -44,7 +44,7 @@ module.exports = {
             .catch(next)
     },
     getAll(req, res, next) {
-        Room.find().sort([['createdAt', 'descending']]).populate({ path: 'players', options: { limit: 1 } })
+        Room.find({ status: { $ne: 'closed' } }).sort([['createdAt', 'descending']]).populate({ path: 'players', options: { limit: 1 } })
             .then(rooms => {
                 res.status(200).json({ rooms })
             })
