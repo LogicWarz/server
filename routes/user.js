@@ -5,7 +5,11 @@ const { verification } = require("../middlewares/verification");
 
 router.post("/signup", UserController.signup);
 router.post("/signin", UserController.signin);
-router.get('/', authentication, UserController.findOne)
 router.post("/gsignin", verification, UserController.gsignin);
+
+router.use(authentication);
+router.get('/all', UserController.findAll);
+router.get('/', UserController.findOne);
+router.patch('/:id', UserController.updatePoints);
 
 module.exports = router;
