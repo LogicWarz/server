@@ -2,3 +2,4 @@ node_modules
 .env
 localhost.json
 .nyc_output
+credentials.json

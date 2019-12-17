@@ -15,7 +15,7 @@ module.exports = {
         /* istanbul ignore next */
         axios({
             method: 'get',
-            url: `http://localhost:3000/challenges/random?difficulty=${level}`,
+            url: `http://coderoyale.server.edirates.xyz/challenges/random?difficulty=${level}`,
             headers: {
                 token: req.headers.token
             }
