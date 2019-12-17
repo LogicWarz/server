@@ -30,6 +30,9 @@ let userSignIn = {
 };
 
 let userToken = "";
+let firstUserId = "";
+let secondUserId = "";
+let wrongUserId = "5dc93e20274f784242aedf81";
 
 describe("Root Path Testing", function () {
     describe("Success Response", function () {
@@ -55,6 +58,7 @@ describe("User Routing Tests", function () {
             name: "Edison"
         })
             .then((user) => {
+                firstUserId = user._id;
                 return User.create({
                     email: "jon@snow.com",
                     password: "Jonsnow1234",
@@ -62,6 +66,7 @@ describe("User Routing Tests", function () {
                 });
             })
             .then((user) => {
+                secondUserId = user._id;
                 console.log(`Initial users created.`);
                 done();
             })
@@ -288,6 +293,22 @@ describe("User Routing Tests", function () {
             });
         });
     });
+    describe("GET /users/all", function () {
+        describe("Success Response", function () {
+            it("Should return an array of object value containing all user data with HTTP status code 200", function (done) {
+                chai.request(app)
+                    .get("/users/all")
+                    .set("token", userToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("array");
+                        expect(res.body[0]).to.be.an("object").to.have.any.keys("_id", "email", "password", "name", "points");
+                        done();
+                    });
+            });
+        });
+    });
     describe("GET /users", function () {
         describe("Success Response", function () {
             it("Should return an object value containing user data with HTTP status code 200", function (done) {
@@ -311,6 +332,57 @@ describe("User Routing Tests", function () {
                         expect(res).to.have.status(403);
                         expect(res.body).to.be.an("object").to.have.any.keys("message");
                         expect(res.body.message).to.be.equal("You must log in first");
+                        done();
+                    });
+            });
+        });
+    });
+    describe("PATCH /users/:id", function () {
+        describe("Success Response", function () {
+            it("Should return an object value containing updated user data with HTTP status code 200", function (done) {
+                chai.request(app)
+                    .patch("/users/"+firstUserId)
+                    .send({
+                        points: 10
+                    })
+                    .set("token", userToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.be.an("object").to.have.any.keys("_id", "email", "password", "name", "points");
+                        done();
+                    });
+            });
+        });
+        describe("Error Response", function () {
+            it("Should return an error with HTTP status code 403 because user not logged in", function (done) {
+                chai.request(app)
+                    .patch("/users/"+firstUserId)
+                    .send({
+                        points: 10
+                    })
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(403);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("You must log in first");
+                        done();
+                    });
+            });
+        });
+        describe("Error Response", function () {
+            it("Should return an error with HTTP status code 404 because user not found", function (done) {
+                chai.request(app)
+                    .patch("/users/"+wrongUserId)
+                    .send({
+                        points: 10
+                    })
+                    .set("token", userToken)
+                    .end(function (err, res) {
+                        expect(err).to.be.null;
+                        expect(res).to.have.status(404);
+                        expect(res.body).to.be.an("object").to.have.any.keys("message");
+                        expect(res.body.message).to.be.equal("User not found");
                         done();
                     });
             });

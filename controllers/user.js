@@ -108,18 +108,18 @@ class UserController {
                             new: true 
                         }); 
                 } 
-                /* istanbul ignore next */
                 else {
                     let err = { status: 404, message: `User not found` };
-                    next(err);
+                    throw err;
                 }
             })
-        .then((updated) => {
-            res.status(200).json(updated);
-        })
-        .catch((err) => {
-            next(err);
-        });
+            .then((updated) => {
+                res.status(200).json(updated);
+            })
+            .catch((err) => {
+                /* istanbul ignore next */
+                next(err);
+            });
     }
     
 }
