@@ -37,24 +37,6 @@ class UserController {
                 next(err);
             });
     }
-    static findOne(req, res, next) {
-        User.findById(req.user._id)
-            .then((user) => {
-                /* istanbul ignore next */
-                if (user) {
-                    res.status(200).json(user);
-                } 
-                /* istanbul ignore next */
-                else {
-                    let err = { status: 403, message: `You must log in first` };
-                    next(err);
-                }
-            })
-            .catch((err) => {
-                /* istanbul ignore next */
-                next(err);
-            });
-    }
     static gsignin(req, res, next) {
         User.findOne({
             email: req.user.email
@@ -84,6 +66,62 @@ class UserController {
                 next(err);
             });
     }
+    static findAll(req, res, next) {
+        User.find()
+            .then((users) => {
+                res.status(200).json(users);
+            })
+            .catch((err) => {
+                /* istanbul ignore next */
+                next(err);
+            });
+    }
+    static findOne(req, res, next) {
+        User.findById(req.user._id)
+            .then((user) => {
+                /* istanbul ignore next */
+                if (user) {
+                    res.status(200).json(user);
+                } 
+                /* istanbul ignore next */
+                else {
+                    let err = { status: 403, message: `You must log in first` };
+                    next(err);
+                }
+            })
+            .catch((err) => {
+                /* istanbul ignore next */
+                next(err);
+            });
+    }
+    static updatePoints (req, res, next) {
+        User.findById(req.params.id)
+            .then((user) => {
+                /* istanbul ignore next */
+                if (user) {
+                    return User.findByIdAndUpdate(req.params.id, 
+                        { $set: {
+                            points: user.points + req.body.points,
+                        }}, { 
+                            omitUndefined: true, 
+                            runValidators:true, 
+                            new: true 
+                        }); 
+                } 
+                /* istanbul ignore next */
+                else {
+                    let err = { status: 404, message: `User not found` };
+                    next(err);
+                }
+            })
+        .then((updated) => {
+            res.status(200).json(updated);
+        })
+        .catch((err) => {
+            next(err);
+        });
+    }
+    
 }
 
 module.exports = UserController;
