@@ -8,13 +8,13 @@ const io = require('socket.io').listen(server)
 io.on('connection', (socket) => {
     console.log('socket.io is now connected')
     socket.on('getRoom', (data) => {
-        let id = ''
-        if (data._id) {
-            id = data._id
-        } else {
-            id = data
-        }
-        console.log('000000000000', data._id)
+	let id = ''
+	if(data){
+		id = data._id
+	}else {
+		id = data
+	}
+        // console.log('000000000000', data._id)
         socket.join(id)
         io.emit('getRoom', data)
     })
