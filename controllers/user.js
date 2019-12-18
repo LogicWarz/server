@@ -68,6 +68,9 @@ class UserController {
     }
     static findAll(req, res, next) {
         User.find()
+        .sort({
+            points: "DESC"
+        })
             .then((users) => {
                 res.status(200).json(users);
             })
